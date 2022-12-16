@@ -16,11 +16,11 @@ const emojis = {
     'O': '🚪',
     'X': '🌳',
     'I': '🎁',
-    'PLAYER': '🏃‍♂️',
-    'BOMB_COLLISION': '🔥',
-    'GAME_OVER': '👎',
-    'WIN': '🏆',
     'HEART': '❤️',
+    'PLAYER': '🏃‍♂️',
+    'WIN': '🏆',
+    'LOSE': '🔥',
+    'GAME_OVER': '👎',
   };
   
   const maps = [];

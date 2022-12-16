@@ -1,12 +1,16 @@
-// Canvas DOM variables
+// Canvas DOM constants
 const canvas = document.querySelector('#game');
 const gameContext = canvas.getContext('2d');
 
-// Button DOM variables
+// Button DOM constants
 const buttonUp = document.querySelector('#up');
 const buttonLeft = document.querySelector('#left');
 const buttonRight = document.querySelector('#right');
 const buttonDown = document.querySelector('#down');
+
+// Game Constants
+const TOTAL_LEVELS = maps.length;
+const TOTAL_LIVES = 3;
 
 // View variables
 let canvasSize;
@@ -15,6 +19,7 @@ let elementSize;
 // Game variables
 let map2DArray;
 let playerPosition;
+let numberOfLives;
 let levelNumber;
 
 function loadMap() {
@@ -88,6 +93,7 @@ function startLevel() {
 
 function startGame() {
     levelNumber = 0;
+    numberOfLives = 3;
     startLevel();
 }
 
@@ -119,31 +125,38 @@ function handleWinCollision() {
     levelNumber += 1;
 
     // Check if game is not finished yet
-    if(levelNumber < maps.length)
-        startLevel();
+    if(levelNumber < TOTAL_LEVELS) startLevel();
+
+    else console.log("You WIN!");
+
 }
 
 function handleLoseCollision() {
 
+    // Lose one life
+    numberOfLives -= 1;
+    console.log(numberOfLives);
+
     // Restart level
-    startLevel();
+    if(numberOfLives > 0) startLevel();
+    else startGame();
 }
 
 function checkCollision() {
 
     // Get which element I'm located at
-    const currentPositionElement = map2DArray[playerPosition.posY][playerPosition.posX]
+    const currentPositionElement = map2DArray[playerPosition.posY][playerPosition.posX];
 
     switch(currentPositionElement) {
 
         // Collision with WIN element
         case 'I':
-            handleWinCollision()
+            handleWinCollision();
             break;
 
         // Collision with LOSE element
         case 'X':
-            handleLoseCollision()
+            handleLoseCollision();
             break;
     }
 }
@@ -151,13 +164,13 @@ function checkCollision() {
 function movePlayer(event) {
 
     // Control movement
-    changePosition(event.key)
+    changePosition(event.key);
 
     // Collisions
-    checkCollision()
+    checkCollision();
 
     // Update Canvas
-    renderCanvas()
+    renderCanvas();
 }
 
 // General event listeners
