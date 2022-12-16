@@ -23,8 +23,6 @@ body {
 }
 #game {
     background-color: var(--primary-color);
-    width: min(500px, 80%);
-    height: calc(min(500px, 80%)*2/5);
     border: 5px solid orange;
     border-radius: 5px;
 }
