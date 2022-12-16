@@ -15,11 +15,12 @@ let elementSize;
 // Game variables
 let map2DArray;
 let playerPosition;
+let levelNumber;
 
-function loadMap(level) {
+function loadMap() {
 
     // Set current map to display
-    currentMap = maps[level];
+    currentMap = maps[levelNumber];
 
     // Parse the config String
     return currentMap.split("\n")
@@ -45,10 +46,21 @@ function loadPlayer() {
     };
 }
 
+function renderElement(element, {posX, posY}) {
+
+    // Set variables
+    let emoji = emojis[element];
+    let canvasPosX = elementSize * (posX + 1);
+    let canvasPosY = elementSize * (posY + 1);
+
+    // Render on Canvas
+    gameContext.fillText(emoji, canvasPosX, canvasPosY);
+}
+
 function renderCanvas() {
 
     // Make it responsive
-    canvasSize = Math.min(window.innerHeight, window.innerWidth) * 0.75;
+    canvasSize = Math.min(window.innerHeight, window.innerWidth) * 0.7;
     elementSize = canvasSize / 10;   
     
     // Set a square
@@ -60,87 +72,101 @@ function renderCanvas() {
     gameContext.textAlign = 'end';
 
     // Make a 10x10 grid
-    map2DArray.forEach((row, y) => row.forEach((item, x) => {
-
-        // Current item
-        let emoji = emojis[item];
-        let posX = elementSize * (x + 1);
-        let posY = elementSize * (y + 1);
-
-        // Fill map
-        gameContext.fillText(emoji, posX, posY);
+    map2DArray.forEach((row, posY) => row.forEach((element, posX) => {
+        renderElement(element, {posX, posY});
     }));
 
     // Set player
-    movePlayer();
+    renderElement('PLAYER', playerPosition);
+}
+
+function startLevel() {
+    map2DArray = loadMap();
+    playerPosition = loadPlayer();
+    renderCanvas();
 }
 
 function startGame() {
-
-    map2DArray = loadMap(2);
-    playerPosition = loadPlayer();
-    renderCanvas();
-
+    levelNumber = 0;
+    startLevel();
 }
 
-function movePlayer() {
-    // Set variables
-    let emoji = emojis['PLAYER'];
-    let posX = elementSize * (playerPosition.posX + 1);
-    let posY = elementSize * (playerPosition.posY + 1);
+function changePosition(direction) {
 
-    // Render on Canvas
-    gameContext.fillText(emoji, posX, posY);
-}
-
-function moveUp() {
-    playerPosition.posY -= 1;
-    renderCanvas()
-}
-
-function moveLeft() {
-    playerPosition.posX -= 1;
-    renderCanvas()
-}
-
-function moveRight() {
-    playerPosition.posX += 1;
-    renderCanvas()
-}
-
-function moveDown() {
-    playerPosition.posY += 1;
-    renderCanvas()
-}
-
-function moveByKeys(event) {
-
-    // Control keyboard movement
-    switch(event.key) {
+    switch(direction) {
+    
         case 'ArrowUp':
-            moveUp();
+            playerPosition.posY = Math.max(playerPosition.posY - 1, 0);
             break;
+    
         case 'ArrowLeft':
-            moveLeft();
+            playerPosition.posX = Math.max(playerPosition.posX - 1, 0);
             break;
+    
         case 'ArrowRight':
-            moveRight();
+            playerPosition.posX = Math.min(playerPosition.posX + 1, 9);
             break;
+    
         case 'ArrowDown':
-            moveDown();
+            playerPosition.posY = Math.min(playerPosition.posY + 1, 9);
             break;
     }
+}
 
-    //renderCanvas()
+function handleWinCollision() {
+
+    // Move to next level
+    levelNumber += 1;
+
+    // Check if game is not finished yet
+    if(levelNumber < maps.length)
+        startLevel();
+}
+
+function handleLoseCollision() {
+
+    // Restart level
+    startLevel();
+}
+
+function checkCollision() {
+
+    // Get which element I'm located at
+    const currentPositionElement = map2DArray[playerPosition.posY][playerPosition.posX]
+
+    switch(currentPositionElement) {
+
+        // Collision with WIN element
+        case 'I':
+            handleWinCollision()
+            break;
+
+        // Collision with LOSE element
+        case 'X':
+            handleLoseCollision()
+            break;
+    }
+}
+
+function movePlayer(event) {
+
+    // Control movement
+    changePosition(event.key)
+
+    // Collisions
+    checkCollision()
+
+    // Update Canvas
+    renderCanvas()
 }
 
 // General event listeners
 window.addEventListener('load', startGame);
 window.addEventListener('resize', renderCanvas);
-window.addEventListener('keydown', moveByKeys);
+window.addEventListener('keydown', movePlayer);
 
 // Keydown event listeners
-buttonUp.addEventListener('click', moveUp);
-buttonLeft.addEventListener('click', moveLeft);
-buttonRight.addEventListener('click', moveRight);
-buttonDown.addEventListener('click', moveDown);
+buttonUp.addEventListener('click', movePlayer.bind(null, {key: 'ArrowUp'}));
+buttonLeft.addEventListener('click', movePlayer.bind(null, {key: 'ArrowLeft'}));
+buttonRight.addEventListener('click', movePlayer.bind(null, {key: 'ArrowRight'}));
+buttonDown.addEventListener('click', movePlayer.bind(null, {key: 'ArrowDown'}));

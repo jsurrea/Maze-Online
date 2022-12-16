@@ -1,8 +1,16 @@
 /*
- * Reglas:
- * El final de cada nivel debe ser el inicio del siguiente
+ * Rules:
+ * Each map must be a 10x10 grid
+ * Each row must be delimited by '\n'
+ * Each row must have consecutive values
+ * Values can only be '-', 'O', 'I', 'X' or whitespaces
+ * Player starts at 'O'
+ * Player can walk over '-'
+ * Player must reach 'I'
+ * Player can't touch 'X'
 */
 
+// Mapping to visual elements
 const emojis = {
     '-': ' ',
     'O': '🚪',
