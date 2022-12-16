@@ -1,0 +1,43 @@
+:root {
+    --primary-color: rgb(157, 194, 153);
+    --light: rgb(255, 242, 253);
+    --font-color: rgb(35, 73, 35);
+}
+body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+.title {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: var(--font-color);
+}
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--light);
+}
+#game {
+    background-color: var(--primary-color);
+    width: min(500px, 80%);
+    height: calc(min(500px, 80%)*2/5);
+    border: 5px solid orange;
+    border-radius: 5px;
+}
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+.buttons button {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    background-color: var(--light);
+    border-radius: 25px;
+    border-color: var(--primary-color);
+}
