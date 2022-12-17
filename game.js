@@ -10,6 +10,7 @@ const buttonDown = document.querySelector('#down');
 
 // Messages DOM constants
 const spanLives = document.querySelector('#lives')
+const spanTime = document.querySelector('#time')
 
 // Game Constants
 const TOTAL_LEVELS = maps.length;
@@ -24,6 +25,8 @@ let map2DArray;
 let playerPosition;
 let numberOfLives;
 let levelNumber;
+let timeStart;
+let timeInterval;
 
 function loadMap() {
 
@@ -88,9 +91,13 @@ function renderCanvas() {
     renderElement('PLAYER', playerPosition);
 }
 
-function renderMessages() {
-    const hearts = Array(numberOfLives).fill(emojis['HEART']).join("")
-    spanLives.textContent = hearts
+function renderLives() {
+    const hearts = Array(numberOfLives).fill(emojis['HEART']).join("");
+    spanLives.textContent = hearts;
+}
+
+function renderTime() {
+    spanTime.textContent = (Date.now() - timeStart) / 1000;
 }
 
 function startLevel() {
@@ -102,8 +109,13 @@ function startLevel() {
 function startGame() {
     levelNumber = 0;
     numberOfLives = 3;
+    timeStart = Date.now()
+
     startLevel();
-    renderMessages();
+
+    renderLives();
+
+    timeInterval = setInterval(renderTime, 100)
 }
 
 function changePosition(direction) {
@@ -131,20 +143,20 @@ function changePosition(direction) {
 function handleWinCollision() {
 
     // Move to next level
-    levelNumber += 1;
+    levelNumber++;
 
     // Check if game is not finished yet
     if(levelNumber < TOTAL_LEVELS) startLevel();
 
-    else console.log("You WIN!");
+    else clearInterval(timeInterval);
 
 }
 
 function handleLoseCollision() {
 
     // Lose one life
-    numberOfLives -= 1;
-    renderMessages(numberOfLives);
+    numberOfLives--;
+    renderLives(numberOfLives);
 
     // Restart level
     if(numberOfLives > 0) startLevel();
