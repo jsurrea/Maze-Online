@@ -8,6 +8,9 @@ const buttonLeft = document.querySelector('#left');
 const buttonRight = document.querySelector('#right');
 const buttonDown = document.querySelector('#down');
 
+// Messages DOM constants
+const spanLives = document.querySelector('#lives')
+
 // Game Constants
 const TOTAL_LEVELS = maps.length;
 const TOTAL_LIVES = 3;
@@ -85,6 +88,11 @@ function renderCanvas() {
     renderElement('PLAYER', playerPosition);
 }
 
+function renderMessages() {
+    const hearts = Array(numberOfLives).fill(emojis['HEART']).join("")
+    spanLives.textContent = hearts
+}
+
 function startLevel() {
     map2DArray = loadMap();
     playerPosition = loadPlayer();
@@ -95,6 +103,7 @@ function startGame() {
     levelNumber = 0;
     numberOfLives = 3;
     startLevel();
+    renderMessages();
 }
 
 function changePosition(direction) {
@@ -135,7 +144,7 @@ function handleLoseCollision() {
 
     // Lose one life
     numberOfLives -= 1;
-    console.log(numberOfLives);
+    renderMessages(numberOfLives);
 
     // Restart level
     if(numberOfLives > 0) startLevel();
