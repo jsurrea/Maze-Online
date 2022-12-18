@@ -18,9 +18,8 @@ const emojis = {
     'I': '🎁',
     'HEART': '❤️',
     'PLAYER': '🏃‍♂️',
-    'WIN': '🏆',
     'LOSE': '🔥',
-    'GAME_OVER': '👎',
+    'IMPACT': '💥',
 };
   
 const maps = [];

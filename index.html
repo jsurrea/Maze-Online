@@ -4,32 +4,76 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
     <title>Maze Online</title>
 </head>
 <body>
+
+    <div class="modal modal-rules" style="background-color: rgba(0, 0, 0, 1)">
+        <p style="color: yellow; font-size: 46px;">RULES</p>
+        <div>
+            <p>YOU are 🏃‍♂️</p>
+            <p>You start at 🚪</p>
+            <p>You go to 🎁</p>
+            <p>You avoid 🌳</p>
+        </div>
+        <p><span class="keyboard-control inactive">Press ENTER</span> <span class="mobile-control">TOUCH</span> to start playing</p>
+    </div>
+
+    <div class="modal modal-win inactive">
+        <p style="color: green; font-size: 46px;">YOU WIN!</p>
+        <p style="font-size: 80px; margin: 40px auto;">🏆</p>
+        <div>
+            <p>Your score: <span id="modal-your-score"></span></p>
+            <p>Best score: <span id="modal-best-score"></span></p>
+        </div>
+        <p>You are a natural!</p>
+        <p><span class="keyboard-control inactive">Press ENTER</span> <span class="mobile-control">TOUCH</span> to play again</p>
+    </div>
+
+    <div class="modal modal-lose inactive">
+        <p style="color: red; font-size: 46px;">YOU LOSE!</p>
+        <p style="font-size: 80px; margin: 40px auto;">👎</p>
+        <p>You reached level <span id="modal-current-level"></span> of <span id="modal-total-levels"></span></p>
+        <p>Better luck next time!</p>
+        <p><span class="keyboard-control inactive">Press ENTER</span> <span class="mobile-control">TOUCH</span> to play again</p>
+    </div>
+
     <div class="game-container">
 
-        <h1 class="title">Maze Online</h1>
+        <div class="top-container">
+            <p>Lives <br/> <span id="lives"></span></p>
+            <h1 class="title">Maze <br/> Online</h1>
+            <p>Time <br/> <span id="time"></span></p>
+        </div>
         
         <canvas id="game"></canvas>
 
-        <div class="inactive buttons">
-            <div></div>
-            <button id="up">Up</button>
-            <div></div>
-            <button id="left">Left</button>
-            <div></div>
-            <button id="right">Right</button>
-            <div></div>
-            <button id="down">Down</button>
-            <div></div>
-        </div>
+        <div class="buttons-container inactive">
+            
+            <div class="buttons">
+                <div></div>
+                <button id="up">
+                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 59.414 59.414" style="enable-background:new 0 0 59.414 59.414; transform: rotate(-90deg);" xml:space="preserve"><polygon points="15.561,0 14.146,1.414 42.439,29.707 14.146,58 15.561,59.414 45.268,29.707 "/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                </button>
+                <div></div>
+                <button id="left">
+                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 59.414 59.414" style="enable-background:new 0 0 59.414 59.414; transform: rotate(180deg);" xml:space="preserve"><polygon points="15.561,0 14.146,1.414 42.439,29.707 14.146,58 15.561,59.414 45.268,29.707 "/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                </button>
+                <div></div>
+                <button id="right">
+                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 59.414 59.414" style="enable-background:new 0 0 59.414 59.414;" xml:space="preserve"><polygon points="15.561,0 14.146,1.414 42.439,29.707 14.146,58 15.561,59.414 45.268,29.707 "/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                </button>
+                <div></div>
+                <button id="down">
+                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 59.414 59.414" style="enable-background:new 0 0 59.414 59.414; transform: rotate(90deg);" xml:space="preserve"><polygon points="15.561,0 14.146,1.414 42.439,29.707 14.146,58 15.561,59.414 45.268,29.707 "/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                </button>
+                <div></div>
+            </div>
 
-        <div class="messages">
-            <!-- TODO -->
-            <p>Lives: <span id="lives"></span></p>
-            <p>Time: <span id="time"></span></p>
         </div>
 
     </div>

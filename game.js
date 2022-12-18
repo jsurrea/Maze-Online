@@ -1,16 +1,23 @@
+'use strict'
 // Canvas DOM constants
 const canvas = document.querySelector('#game');
 const gameContext = canvas.getContext('2d');
 
 // Button DOM constants
+const buttonsContainer = document.querySelector('.buttons-container');
 const buttonUp = document.querySelector('#up');
 const buttonLeft = document.querySelector('#left');
 const buttonRight = document.querySelector('#right');
 const buttonDown = document.querySelector('#down');
 
 // Messages DOM constants
-const spanLives = document.querySelector('#lives')
-const spanTime = document.querySelector('#time')
+const spanLives = document.querySelector('#lives');
+const spanTime = document.querySelector('#time');
+
+// Modal DOM constants 
+const modalRules = document.querySelector('.modal-rules');
+const modalWin = document.querySelector('.modal-win');
+const modalLose = document.querySelector('.modal-lose');
 
 // Game Constants
 const TOTAL_LEVELS = maps.length;
@@ -31,19 +38,19 @@ let timeInterval;
 function loadMap() {
 
     // Set current map to display
-    currentMap = maps[levelNumber];
+    const currentMap = maps[levelNumber];
 
     // Parse the config String
     return currentMap.split("\n")
 
-    // Clean unwanted whitespaces
-    .map(element => element.trim())
+        // Clean unwanted whitespaces
+        .map(element => element.trim())
 
-    // Remove unused elements
-    .filter(element => !!element.length)
+        // Remove unused elements
+        .filter(element => !!element.length)
 
-    // Get each item
-    .map(row => row.split(""));
+        // Get each item
+        .map(row => row.split(""));
 }
 
 function loadPlayer() {
@@ -70,8 +77,14 @@ function renderElement(element, {posX, posY}) {
 
 function renderCanvas() {
 
+    // Show buttons if mobile
+    if(window.innerHeight > window.innerWidth) buttonsContainer.classList.remove('inactive');
+    else buttonsContainer.classList.add('inactive');
+
     // Make it responsive
-    canvasSize = Math.min(window.innerHeight, window.innerWidth) * 0.7;
+    const topContainerHeight = 130;
+    const buttonsContainerHeight = buttonsContainer.classList.contains('inactive') || 250;
+    canvasSize = Math.min(window.innerHeight - topContainerHeight - buttonsContainerHeight, window.innerWidth) * 0.9;
     elementSize = canvasSize / 10;   
     
     // Set a square
@@ -97,7 +110,9 @@ function renderLives() {
 }
 
 function renderTime() {
-    spanTime.textContent = (Date.now() - timeStart) / 1000;
+    let time = ((Date.now() - timeStart) / 1000).toFixed(3);
+    spanTime.textContent = time;
+    document.querySelector('#modal-your-score').textContent = time;
 }
 
 function startLevel() {
@@ -107,15 +122,21 @@ function startLevel() {
 }
 
 function startGame() {
-    levelNumber = 0;
+
+    // Modals
+    modalRules.classList.add('inactive');
+    modalWin.classList.add('inactive');
+    modalLose.classList.add('inactive');
+
+    levelNumber = 4;
     numberOfLives = 3;
-    timeStart = Date.now()
+    timeStart = Date.now();
 
     startLevel();
 
     renderLives();
 
-    timeInterval = setInterval(renderTime, 100)
+    timeInterval = setInterval(renderTime, 100);
 }
 
 function changePosition(direction) {
@@ -148,8 +169,10 @@ function handleWinCollision() {
     // Check if game is not finished yet
     if(levelNumber < TOTAL_LEVELS) startLevel();
 
-    else clearInterval(timeInterval);
-
+    else {
+        clearInterval(timeInterval);
+        modalWin.classList.remove('inactive');
+    }
 }
 
 function handleLoseCollision() {
@@ -160,7 +183,12 @@ function handleLoseCollision() {
 
     // Restart level
     if(numberOfLives > 0) startLevel();
-    else startGame();
+    else {
+        clearInterval(timeInterval);
+        modalLose.classList.remove('inactive');
+        document.querySelector('#modal-current-level').textContent = levelNumber + 1;
+        document.querySelector('#modal-total-levels').textContent = TOTAL_LEVELS;
+    }
 }
 
 function checkCollision() {
@@ -184,6 +212,12 @@ function checkCollision() {
 
 function movePlayer(event) {
 
+    // Enter to restart the game
+    if(!numberOfLives) {
+        if(event.key == 'Enter') startGame();
+        return;
+    }
+
     // Control movement
     changePosition(event.key);
 
@@ -195,7 +229,6 @@ function movePlayer(event) {
 }
 
 // General event listeners
-window.addEventListener('load', startGame);
 window.addEventListener('resize', renderCanvas);
 window.addEventListener('keydown', movePlayer);
 
@@ -204,3 +237,8 @@ buttonUp.addEventListener('click', movePlayer.bind(null, {key: 'ArrowUp'}));
 buttonLeft.addEventListener('click', movePlayer.bind(null, {key: 'ArrowLeft'}));
 buttonRight.addEventListener('click', movePlayer.bind(null, {key: 'ArrowRight'}));
 buttonDown.addEventListener('click', movePlayer.bind(null, {key: 'ArrowDown'}));
+
+// Modal event listeners
+modalRules.addEventListener('click', startGame);
+modalWin.addEventListener('click', startGame);
+modalLose.addEventListener('click', startGame);
