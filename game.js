@@ -205,7 +205,6 @@ function handleLoseCollision() {
             9 - playerPosition.posX,
             9 - playerPosition.posY,
         );
-        console.log(maxRadius)
 
         let animationTime = totalAnimationTime / (maxRadius + 1);
         for(let radius = 0; radius <= maxRadius; radius++) {
