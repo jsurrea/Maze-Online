@@ -18,7 +18,7 @@ const emojis = {
     'I': '🎁',
     'HEART': '❤️',
     'PLAYER': '🏃‍♂️',
-    'LOSE': '🔥',
+    'BURN': '🔥',
     'IMPACT': '💥',
 };
   

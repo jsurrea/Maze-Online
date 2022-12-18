@@ -34,6 +34,7 @@ let numberOfLives;
 let levelNumber;
 let timeStart;
 let timeInterval;
+let impactPositions;
 
 function loadMap() {
 
@@ -102,6 +103,11 @@ function renderCanvas() {
 
     // Set player
     renderElement('PLAYER', playerPosition);
+
+    // Render impact
+    for(let position of impactPositions) {
+        renderElement('IMPACT', position);
+    }
 }
 
 function renderLives() {
@@ -128,8 +134,9 @@ function startGame() {
     modalWin.classList.add('inactive');
     modalLose.classList.add('inactive');
 
-    levelNumber = 4;
+    levelNumber = 0;
     numberOfLives = 3;
+    impactPositions = [];
     timeStart = Date.now();
 
     startLevel();
@@ -180,14 +187,33 @@ function handleLoseCollision() {
     // Lose one life
     numberOfLives--;
     renderLives(numberOfLives);
+    impactPositions.push(playerPosition);
 
     // Restart level
-    if(numberOfLives > 0) startLevel();
+    if(numberOfLives > 0) {
+        startLevel();
+    }
     else {
+        // Player time
         clearInterval(timeInterval);
-        modalLose.classList.remove('inactive');
-        document.querySelector('#modal-current-level').textContent = levelNumber + 1;
-        document.querySelector('#modal-total-levels').textContent = TOTAL_LEVELS;
+
+        // Game Over Animation
+        let totalAnimationTime = 1000;
+        let maxRadius = Math.max(
+            playerPosition.posX,
+            playerPosition.posY,
+            9 - playerPosition.posX,
+            9 - playerPosition.posY,
+        );
+        console.log(maxRadius)
+
+        let animationTime = totalAnimationTime / (maxRadius + 1);
+        for(let radius = 0; radius <= maxRadius; radius++) {
+            setTimeout(renderGameOver, animationTime * radius, radius);
+        }
+
+        // Game Over Modal
+        setTimeout(showModalLose, totalAnimationTime);
     }
 }
 
@@ -226,6 +252,41 @@ function movePlayer(event) {
 
     // Update Canvas
     renderCanvas();
+}
+
+function renderGameOver(radius) {
+
+    // Grid positions at radius distance
+    let upperPosition = Math.max(playerPosition.posY - radius, 0);
+    let leftPosition = Math.max(playerPosition.posX - radius, 0);
+    let rightPosition = Math.min(playerPosition.posX + radius, 9);
+    let lowerPosition = Math.min(playerPosition.posY + radius, 9);
+
+    // Upper line
+    for(let posX = leftPosition; posX <= rightPosition; posX++)
+        if(map2DArray[upperPosition][posX] == 'X')
+            renderElement('BURN', {posX, posY: upperPosition});
+
+    // Left line
+    for(let posY = upperPosition; posY <= lowerPosition; posY++)
+        if(map2DArray[posY][leftPosition] == 'X')
+            renderElement('BURN', {posX: leftPosition, posY});
+
+    // Right line
+    for(let posY = upperPosition; posY <= lowerPosition; posY++)
+        if(map2DArray[posY][rightPosition] == 'X')
+            renderElement('BURN', {posX: rightPosition, posY});
+
+    // Lower line
+    for(let posX = leftPosition; posX <= rightPosition; posX++)
+        if(map2DArray[lowerPosition][posX] == 'X')
+            renderElement('BURN', {posX, posY: lowerPosition});
+}
+
+function showModalLose() {
+    modalLose.classList.remove('inactive');
+    document.querySelector('#modal-current-level').textContent = levelNumber + 1;
+    document.querySelector('#modal-total-levels').textContent = TOTAL_LEVELS;
 }
 
 // General event listeners
