@@ -9,8 +9,9 @@ const buttonRight = document.querySelector('#right');
 const buttonDown = document.querySelector('#down');
 
 // Messages DOM constants
-const spanLives = document.querySelector('#lives')
-const spanTime = document.querySelector('#time')
+const spanLives = document.querySelector('#lives');
+const spanTime = document.querySelector('#time');
+const spanBest = document.querySelector('#best');
 
 // Game Constants
 const TOTAL_LEVELS = maps.length;
@@ -100,6 +101,10 @@ function renderTime() {
     spanTime.textContent = (Date.now() - timeStart) / 1000;
 }
 
+function renderBest() {
+    spanBest.textContent = localStorage.getItem('best');
+}
+
 function startLevel() {
     map2DArray = loadMap();
     playerPosition = loadPlayer();
@@ -116,6 +121,8 @@ function startGame() {
     renderLives();
 
     timeInterval = setInterval(renderTime, 100)
+
+    renderBest();
 }
 
 function changePosition(direction) {
@@ -148,7 +155,14 @@ function handleWinCollision() {
     // Check if game is not finished yet
     if(levelNumber < TOTAL_LEVELS) startLevel();
 
-    else clearInterval(timeInterval);
+    else {
+        let newTime = (Date.now() - timeStart) / 1000;
+        clearInterval(timeInterval);
+
+        let recordTime = localStorage.getItem('best');
+        if(!recordTime || recordTime > newTime)
+            localStorage.setItem('best', newTime)
+    }
 
 }
 
@@ -160,7 +174,10 @@ function handleLoseCollision() {
 
     // Restart level
     if(numberOfLives > 0) startLevel();
-    else startGame();
+    else {
+        clearInterval(timeInterval);
+        startGame();
+    } 
 }
 
 function checkCollision() {

@@ -74,14 +74,14 @@ maps.push(`
 `);
 
 maps.push(`
-    O---------
-    XXXXXXXXX-
-    --------X-
-    -XXXXXX-X-
-    -X----X-X-
-    -X-XXIX-X-
-    -X-XXXX-X-
-    -X------X-
-    -XXXXXXXX-
-    ----------
+    XXXXXXXXXX
+    XO-------X
+    XXXXXXXX-X
+    X------X-X
+    X-XXXX-X-X
+    X-XIXX-X-X
+    X-X----X-X
+    X-XXXXXX-X
+    X--------X
+    XXXXXXXXXX
 `);
