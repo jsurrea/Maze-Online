@@ -175,7 +175,10 @@ function handleWinCollision() {
     levelNumber++;
 
     // Check if game is not finished yet
-    if(levelNumber < TOTAL_LEVELS) startLevel();
+    if(levelNumber < TOTAL_LEVELS) {
+        impactPositions = [];
+        startLevel();
+    }
 
     else {
         let newTime = (Date.now() - timeStart) / 1000;
