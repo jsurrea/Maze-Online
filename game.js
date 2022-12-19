@@ -1,8 +1,10 @@
+'use strict'
 // Canvas DOM constants
 const canvas = document.querySelector('#game');
 const gameContext = canvas.getContext('2d');
 
 // Button DOM constants
+const buttonsContainer = document.querySelector('.buttons-container');
 const buttonUp = document.querySelector('#up');
 const buttonLeft = document.querySelector('#left');
 const buttonRight = document.querySelector('#right');
@@ -12,6 +14,11 @@ const buttonDown = document.querySelector('#down');
 const spanLives = document.querySelector('#lives');
 const spanTime = document.querySelector('#time');
 const spanBest = document.querySelector('#best');
+
+// Modal DOM constants 
+const modalRules = document.querySelector('.modal-rules');
+const modalWin = document.querySelector('.modal-win');
+const modalLose = document.querySelector('.modal-lose');
 
 // Game Constants
 const TOTAL_LEVELS = maps.length;
@@ -28,23 +35,24 @@ let numberOfLives;
 let levelNumber;
 let timeStart;
 let timeInterval;
+let impactPositions;
 
 function loadMap() {
 
     // Set current map to display
-    currentMap = maps[levelNumber];
+    const currentMap = maps[levelNumber];
 
     // Parse the config String
     return currentMap.split("\n")
 
-    // Clean unwanted whitespaces
-    .map(element => element.trim())
+        // Clean unwanted whitespaces
+        .map(element => element.trim())
 
-    // Remove unused elements
-    .filter(element => !!element.length)
+        // Remove unused elements
+        .filter(element => !!element.length)
 
-    // Get each item
-    .map(row => row.split(""));
+        // Get each item
+        .map(row => row.split(""));
 }
 
 function loadPlayer() {
@@ -71,8 +79,14 @@ function renderElement(element, {posX, posY}) {
 
 function renderCanvas() {
 
+    // Show buttons if mobile
+    if(window.innerHeight > window.innerWidth) buttonsContainer.classList.remove('inactive');
+    else buttonsContainer.classList.add('inactive');
+
     // Make it responsive
-    canvasSize = Math.min(window.innerHeight, window.innerWidth) * 0.7;
+    const topContainerHeight = 130;
+    const buttonsContainerHeight = buttonsContainer.classList.contains('inactive') || 250;
+    canvasSize = Math.min(window.innerHeight - topContainerHeight - buttonsContainerHeight, window.innerWidth) * 0.9;
     elementSize = canvasSize / 10;   
     
     // Set a square
@@ -90,6 +104,11 @@ function renderCanvas() {
 
     // Set player
     renderElement('PLAYER', playerPosition);
+
+    // Render impact
+    for(let position of impactPositions) {
+        renderElement('IMPACT', position);
+    }
 }
 
 function renderLives() {
@@ -98,11 +117,9 @@ function renderLives() {
 }
 
 function renderTime() {
-    spanTime.textContent = (Date.now() - timeStart) / 1000;
-}
-
-function renderBest() {
-    spanBest.textContent = localStorage.getItem('best');
+    let time = ((Date.now() - timeStart) / 1000).toFixed(3);
+    spanTime.textContent = time;
+    document.querySelector('#modal-your-score').textContent = time;
 }
 
 function startLevel() {
@@ -112,17 +129,22 @@ function startLevel() {
 }
 
 function startGame() {
+
+    // Modals
+    modalRules.classList.add('inactive');
+    modalWin.classList.add('inactive');
+    modalLose.classList.add('inactive');
+
     levelNumber = 0;
     numberOfLives = 3;
-    timeStart = Date.now()
+    impactPositions = [];
+    timeStart = Date.now();
 
     startLevel();
 
     renderLives();
 
-    timeInterval = setInterval(renderTime, 100)
-
-    renderBest();
+    timeInterval = setInterval(renderTime, 100);
 }
 
 function changePosition(direction) {
@@ -158,12 +180,20 @@ function handleWinCollision() {
     else {
         let newTime = (Date.now() - timeStart) / 1000;
         clearInterval(timeInterval);
-
+        
         let recordTime = localStorage.getItem('best');
-        if(!recordTime || recordTime > newTime)
-            localStorage.setItem('best', newTime)
-    }
 
+        if(!recordTime || recordTime > newTime) {
+            localStorage.setItem('best', newTime);
+            spanBest.textContent = 'YOURS!';
+        }
+
+        else {
+            spanBest.textContent = recordTime;
+        }
+        
+        modalWin.classList.remove('inactive');
+    }
 }
 
 function handleLoseCollision() {
@@ -171,13 +201,33 @@ function handleLoseCollision() {
     // Lose one life
     numberOfLives--;
     renderLives(numberOfLives);
+    impactPositions.push(playerPosition);
 
     // Restart level
-    if(numberOfLives > 0) startLevel();
+    if(numberOfLives > 0) {
+        startLevel();
+    }
     else {
+        // Player time
         clearInterval(timeInterval);
-        startGame();
-    } 
+
+        // Game Over Animation
+        let totalAnimationTime = 1000;
+        let maxRadius = Math.max(
+            playerPosition.posX,
+            playerPosition.posY,
+            9 - playerPosition.posX,
+            9 - playerPosition.posY,
+        );
+
+        let animationTime = totalAnimationTime / (maxRadius + 1);
+        for(let radius = 0; radius <= maxRadius; radius++) {
+            setTimeout(renderGameOver, animationTime * radius, radius);
+        }
+
+        // Game Over Modal
+        setTimeout(showModalLose, totalAnimationTime);
+    }
 }
 
 function checkCollision() {
@@ -201,6 +251,12 @@ function checkCollision() {
 
 function movePlayer(event) {
 
+    // Enter to restart the game
+    if(!numberOfLives) {
+        if(event.key == 'Enter') startGame();
+        return;
+    }
+
     // Control movement
     changePosition(event.key);
 
@@ -211,8 +267,42 @@ function movePlayer(event) {
     renderCanvas();
 }
 
+function renderGameOver(radius) {
+
+    // Grid positions at radius distance
+    let upperPosition = Math.max(playerPosition.posY - radius, 0);
+    let leftPosition = Math.max(playerPosition.posX - radius, 0);
+    let rightPosition = Math.min(playerPosition.posX + radius, 9);
+    let lowerPosition = Math.min(playerPosition.posY + radius, 9);
+
+    // Upper line
+    for(let posX = leftPosition; posX <= rightPosition; posX++)
+        if(map2DArray[upperPosition][posX] == 'X')
+            renderElement('BURN', {posX, posY: upperPosition});
+
+    // Left line
+    for(let posY = upperPosition; posY <= lowerPosition; posY++)
+        if(map2DArray[posY][leftPosition] == 'X')
+            renderElement('BURN', {posX: leftPosition, posY});
+
+    // Right line
+    for(let posY = upperPosition; posY <= lowerPosition; posY++)
+        if(map2DArray[posY][rightPosition] == 'X')
+            renderElement('BURN', {posX: rightPosition, posY});
+
+    // Lower line
+    for(let posX = leftPosition; posX <= rightPosition; posX++)
+        if(map2DArray[lowerPosition][posX] == 'X')
+            renderElement('BURN', {posX, posY: lowerPosition});
+}
+
+function showModalLose() {
+    modalLose.classList.remove('inactive');
+    document.querySelector('#modal-current-level').textContent = levelNumber + 1;
+    document.querySelector('#modal-total-levels').textContent = TOTAL_LEVELS;
+}
+
 // General event listeners
-window.addEventListener('load', startGame);
 window.addEventListener('resize', renderCanvas);
 window.addEventListener('keydown', movePlayer);
 
@@ -221,3 +311,8 @@ buttonUp.addEventListener('click', movePlayer.bind(null, {key: 'ArrowUp'}));
 buttonLeft.addEventListener('click', movePlayer.bind(null, {key: 'ArrowLeft'}));
 buttonRight.addEventListener('click', movePlayer.bind(null, {key: 'ArrowRight'}));
 buttonDown.addEventListener('click', movePlayer.bind(null, {key: 'ArrowDown'}));
+
+// Modal event listeners
+modalRules.addEventListener('click', startGame);
+modalWin.addEventListener('click', startGame);
+modalLose.addEventListener('click', startGame);

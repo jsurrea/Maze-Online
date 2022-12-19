@@ -1,16 +1,32 @@
 :root {
     --primary-color: rgb(157, 194, 153);
-    --light: rgb(255, 242, 253);
+    --light: rgb(255, 255, 255);
     --font-color: rgb(35, 73, 35);
 }
 body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: 'Press Start 2P', cursive;
+}
+.modal {
+    display: grid;
+    align-items: center;
+    text-align: center;
+    color: white;
+    font-size: small;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1;
+}
+.inactive {
+    display: none;
 }
 .title {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     color: var(--font-color);
+    font-size: inherit;
 }
 .game-container {
     display: flex;
@@ -32,10 +48,39 @@ body {
     grid-template-rows: repeat(3, 1fr);
 }
 .buttons button {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     cursor: pointer;
-    background-color: var(--light);
-    border-radius: 25px;
-    border-color: var(--primary-color);
+    border: 1px solid var(--font-color);
+    border-radius: 20px;
+    background-color: var(--primary-color);
+    display: grid;
+    align-items: center;
+}
+.top-container {
+    width: 100%;
+    margin: 30px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    font-size: 16px;
+    text-align: center;
+}
+.buttons-container {
+    position: absolute;
+    bottom: 20px;
+}
+@media (min-width: 700px) {
+    .title {
+        font-size: 30px;
+    }
+    .keyboard-control {
+        display: initial;
+    }
+    .mobile-control {
+        display: none;
+    }
+    .modal {
+        font-size: xx-large;
+    }
 }
